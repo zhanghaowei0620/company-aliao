@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use App\Model\UserModel;
 use Illuminate\Support\Str;
-use App\Http\Controllers\Api\WxBizDataCrypt;
 
 class UserApiController extends Controller
 {
@@ -35,13 +34,15 @@ class UserApiController extends Controller
         $lng1 = $request->input('lng');//经度
         $userinfo = $request->input('userinfo');
         //var_dump(json_decode($userinfo));exit;
-        $userinfo = json_decode($userinfo);
-        $wx_name = $userinfo->nickName;
-        $wx_headimg = $userinfo->avatarUrl;
+        // $userinfo = json_decode($userinfo);
+        // var_dump($userinfo);die;
+        $wx_name = $userinfo['nickName'];
+        $wx_headimg = $userinfo['avatarUrl'];
         //$code = 'dada4d6a54d6a';
         $url = "https://api.weixin.qq.com/sns/jscode2session?appid=" . env('WX_APP_ID') . "&secret=" . env('WX_KEY') . "&js_code=$code&grant_type=authorization_code";
         $info = file_get_contents($url);
         $arr = json_decode($info, true);
+        // var_dump($arr);die;
         //var_dump($arr['unionid']);exit;
         $ac_userInfo = DB::table('ac_user')->where('wx_openid', $arr['openid'])->first();
         if($ac_userInfo){
@@ -63,13 +64,10 @@ class UserApiController extends Controller
                     Redis::set($key, $arr['openid']);
                     //$openid = Redis::get($key);
                     //var_dump($openid);exit;
-                    $data1=[
+                    $response = [
                         'code' => '0',
                         'msg' => '登录成功',
                         'data' => $data
-                    ];
-                    $response = [
-                        'data' => $data1
                     ];
                     return json_encode($response, JSON_UNESCAPED_UNICODE);
                 } else {
@@ -88,8 +86,8 @@ class UserApiController extends Controller
             }
         }else{
             $ac_UserInfo = [
-                'wx_name' => $wx_name,
-                'wx_headimg' => $wx_headimg,
+                'nickname' => $wx_name,
+                'user_avatar' => $wx_headimg,
                 'wx_openid' => $arr['openid'],
                 'session_key' => $arr['session_key'],
                 //'wx_unionid'=>$arr['unionid'],
@@ -108,13 +106,10 @@ class UserApiController extends Controller
                     Redis::set($key, $arr['openid']);
                     //$openid = Redis::get($key);
                     //var_dump($openid);exit;
-                    $data1=[
+                    $response = [
                         'code' => '0',
                         'msg' => '注册成功',
                         'data' => $data
-                    ];
-                    $response = [
-                        'data' => $data1
                     ];
                     return json_encode($response, JSON_UNESCAPED_UNICODE);
                 } else {
@@ -637,9 +632,9 @@ class UserApiController extends Controller
         ];
         return json_encode($response, JSON_UNESCAPED_UNICODE);
     }
-
-
-    public function test(Request $request){
+    
+    //测试
+     public function test(Request $request){
         $appid = 'wx4d7fcc145ca8013b';
         $sessionKey = $request->input('session_key');
         $sessionKey = 'pZe3QPgBt3x7N3RqQ6C1Pg==';
@@ -655,7 +650,7 @@ class UserApiController extends Controller
     }
 
 
-    
+
 
 
 
