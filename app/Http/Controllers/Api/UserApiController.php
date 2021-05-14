@@ -633,23 +633,61 @@ class UserApiController extends Controller
         return json_encode($response, JSON_UNESCAPED_UNICODE);
     }
     
-    //测试
-     public function test(Request $request){
-        $appid = 'wx4d7fcc145ca8013b';
+    //获取用户手机号
+    public function getPhoneNumber(Request $request){
+        $appid = 'wx05a10afd67207bd1';
         $sessionKey = $request->input('session_key');
-        $sessionKey = 'pZe3QPgBt3x7N3RqQ6C1Pg==';
+        // $sessionKey = 'pZe3QPgBt3x7N3RqQ6C1Pg==';
         $encryptedData = $request->input('encryptedData'); 
         $iv = $request->input('iv');
         // $pc = new WxBizDataCrypt();
         // var_dump($pc);die;
         // include_once "wxBizDataCrypt.php";
         $data = '';
-        $pc = new WXBizDataCrypt($appid, $sessionKey);
-        $errCode = $pc->decryptData($encryptedData, $iv, $data );
-        var_dump($errCode);die;
+        $pc = new WxBizDataCrypt($appid, $sessionKey);
+        $errCode = $pc->decryptData($encryptedData, $iv, $data);
+        if ($errCode == 0) {
+    		$response = [
+                'code' => 0,
+                'data' => $data,
+                'msg' => '获取手机号成功'
+            ];
+            return json_encode($response, JSON_UNESCAPED_UNICODE);
+    	} else {
+    		 $response = [
+                'code' => 1,
+                'data' => $errCode,
+                'msg' => '获取手机号失败'
+            ];
+            die(json_encode($response, JSON_UNESCAPED_UNICODE));
+    	}
+        // var_dump($errCode);die;
     }
 
-
+    //添加用户手机号
+    public function userPhoneNumberAdd(Request $request){
+        $openid1 = $request->input('openid');
+        $openid = Redis::get($openid1);
+        $phoneNumber = $request->input('phoneNumber');
+        $updateDate = [
+            'user_mobile' => $phoneNumber,
+            'update_time' => time()
+        ];
+        $update = Db::table('ac_user')->where('wx_openid',$openid)->update($updateDate);
+        if($update){
+            $response = [
+                'code' => 0,
+                'msg' => '获取手机号成功'
+            ];
+            return json_encode($response, JSON_UNESCAPED_UNICODE);
+        }else{
+            $response = [
+                'code' => 1,
+                'msg' => '系统出现错误,请重试'
+            ];
+            die(json_encode($response, JSON_UNESCAPED_UNICODE));
+        }
+    }
 
 
 

@@ -15,8 +15,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('test','Api\UserApiController@test');
+//获取用户手机号
+Route::post('api/getPhoneNumber','Api\UserApiController@test');
 
+//用户手机号入库
+Route::post('api/userPhoneNumberAdd','Api\userPhoneNumberAdd@test');
 
 //获取accessToken
 Route::get('api/accessToken','Api\UserApiController@accessToken');
