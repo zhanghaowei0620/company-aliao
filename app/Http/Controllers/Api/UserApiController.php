@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use App\Model\UserModel;
 use Illuminate\Support\Str;
+use App\Http\Controllers\Api\WxBizDataCrypt;
 
 class UserApiController extends Controller
 {
@@ -638,13 +639,23 @@ class UserApiController extends Controller
     }
 
 
-    // public function test(){
-    //     $a = Redis::flushAll();
-    //     var_dump($a);
-    // }
+    public function test(Request $request){
+        $appid = 'wx4d7fcc145ca8013b';
+        $sessionKey = $request->input('session_key');
+        $sessionKey = 'pZe3QPgBt3x7N3RqQ6C1Pg==';
+        $encryptedData = $request->input('encryptedData'); 
+        $iv = $request->input('iv');
+        // $pc = new WxBizDataCrypt();
+        // var_dump($pc);die;
+        // include_once "wxBizDataCrypt.php";
+        $data = '';
+        $pc = new WXBizDataCrypt($appid, $sessionKey);
+        $errCode = $pc->decryptData($encryptedData, $iv, $data );
+        var_dump($errCode);die;
+    }
 
 
-
+    
 
 
 
